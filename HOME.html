@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./index.js">
+    <title>Jenson智慧監控與安全復原系統</title>
+</head>
+
+<body>
+    <div>
+        🏭 半導體 IC 測試機台 — 智慧監控與安全復原系統
+        [ 🔄 亂數串流中 ] <!-- 暫時設定，這邊要寫JS -->
+        [ 🕒 10:15:30 ] <!-- 暫時設定，這邊要寫JS -->
+    </div>
+    <hr>
+    <div>
+        📊 區塊 A：三機台即時運作狀態 (動態串流 / 防呆機制)
+    </div>
+
+    <template>
+        <div class="myclass" >
+            <table>
+                <tr>
+                    <th>機台：<span id="tool"></span></th>
+                </tr>
+                <tr>
+                    <th>模式：[<span id="model"></span>]</th>
+                </tr>
+                <tr>
+                    <th>狀態：<span id="state"></span></th>
+                </tr>
+                <tr>
+                    <th>----------------------------------------</span></th>
+                </tr>
+                <tr>
+                    <th>• 測試總數：<span id="test_number"></span>顆(<span id="test_number_state"></span>)</th>
+                </tr>
+                <tr>
+                    <th>• 合格數量：<span id="qualified_number"></span>顆</th>
+                </tr>
+                <tr>
+                    <th>• 即時良率：<span id="yield"></span>%(<span id="yield_state"></span>)</th>
+                </tr>
+                <tr>
+                    <th>• 機台溫度：<span temperature></span>°C(<span id="temperature_tolerance"></span>)</th>
+                </tr>
+            </table>
+        </div>
+    </template>
+
+<div id="return_table"></div>
+
+
+    <script src="index.js"></script>
+</body>
+
+</html>
