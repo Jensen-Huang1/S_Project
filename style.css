@@ -1,17 +1,29 @@
-        table  {
+        table#myclassA {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #444;
             padding: 8px 12px;
             text-align: center;
         }
+        table#myclassB  {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #444;
+            text-align: left;
+        }
+        table#myclassB th,
+        table#myclassB td {
+            border: 1px solid #444;
+            text-align: left;
+        }
+
         .machine_box {
 
-        display: inline-block;            
+            display: inline-block;
 
         }
-/* .myClass {
 
+        .myclassA {
+            float: left;
+        }
 
-
-} */

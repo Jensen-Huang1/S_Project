@@ -6,23 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./index.js">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <title>Jenson智慧監控與安全復原系統</title>
 </head>
 
 <body>
     <div>
         🏭 半導體 IC 測試機台 — 智慧監控與安全復原系統
-        [ 🔄 亂數串流中 ] <!-- 暫時設定，這邊要寫JS -->
-        [ 🕒 10:15:30 ] <!-- 暫時設定，這邊要寫JS -->
+        <button>🔄 亂數串流</button>
+        <button>終止串流</button>
+        [ 🕒 <span id="nowTime"></span> ] <!-- 暫時設定，這邊要寫JS -->
     </div>
     <hr>
     <div>
         📊 區塊 A：三機台即時運作狀態 (動態串流 / 防呆機制)
     </div>
 
-    <template>
-        <div class="myclass" >
-            <table>
+    <template> <!-- 區塊A表格 -->
+        <div class="myclassA">
+            <table id="myclassA">
                 <tr>
                     <th>機台：<span id="tool"></span></th>
                 </tr>
@@ -42,7 +44,7 @@
                     <th>• 合格數量：<span id="qualified_number"></span>顆</th>
                 </tr>
                 <tr>
-                    <th>• 即時良率：<span id="yield"></span>%(<span id="yield_state"></span>)</th>
+                    <th>• 即時良率：<span id="yield_rate"></span>%(<span id="yield_state"></span>)</th>
                 </tr>
                 <tr>
                     <th>• 機台溫度：<span temperature></span>°C(<span id="temperature_tolerance"></span>)</th>
@@ -50,8 +52,44 @@
             </table>
         </div>
     </template>
+    <div id="return_table"></div>
 
-<div id="return_table"></div>
+    <div class="myclassB">
+        <table id="myclassB">
+            <tr>
+                <th>🎮 區塊 B：展示控台與兩階段安全復原流程 </th>
+                <th>📋 區塊 C：即時事件與警報紀錄</th>
+            </tr>
+            <tr>
+                <td>
+                    <ol>
+                        <li>選擇目標機台：</li>
+                        <select id="displayMachine">
+                            <option>Handler-A01</option>
+                            <option>Handler-A02</option>
+                            <option>Handler-A03</option>
+                        </select>
+                        <li>強制故障注入： </li>
+                        <button>⚠️ 觸發卡料 </button>
+                        <button>🌡️ 注入高溫</button>
+                        <li>兩階段工業級安全復原：</li>
+                        Step 1: <button>🛠️ 1. 排除障礙並複位 (切換黃燈)</button>
+                        <br>
+                        Step 2: <button>▶️ 2. 安全確認，重新啟動 (恢復綠燈)</button>
+                    </ol>
+                </td>
+                <td>
+                    <p>[10:15:30] 🛠️ [手動] Handler-A03 完成異物排除，轉黃燈</p>
+                    <p>[10:12:05] 🔴 [強制] 手動注入「卡料警報」於 Handler-A02</p>
+                    <p>[10:10:00] 🎲 [隨機] Handler-A03 測試良率降至 93.0%</p>
+                    <p>[10:00:00] ℹ️ [系統] 系統啟動，完成 3 台機台連線檢查</p>
+
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
 
 
     <script src="index.js"></script>
