@@ -27,9 +27,9 @@
             <h3>機台：<span class="machineTitle"></span></h3>
             <h4>模式：[<span class="machineModel"></span>]</h4>
             <h4>狀態：<span class="machineState"></span></h4>
-            <p>• 測試總數：<span class="machineTestCount"></span>顆(<span id="testCountState"></span>)</p>
+            <p>• 測試總數：<span class="machineTestCount"></span>顆(<span class="testCountState"></span>)</p>
             <p>• 合格數量：<span class="passCount"></span>顆</p>
-            <p>• 即時良率：<span id="yieldRate"></span>%(<span class="yieldState"></span>)</p>
+            <p>• 即時良率：<span class="yieldRate"></span>%(<span class="yieldState"></span>)</p>
             <p>• 機台溫度：<span class="temp"></span>°C(<span class="tempeTolerance"></span>)</p>
         </div>
     </template>
@@ -46,17 +46,15 @@
                     <ol>
                         <li>選擇目標機台：</li>
                         <select id="displayMachine">
-                            <option>Handler-A01</option>
-                            <option>Handler-A02</option>
-                            <option>Handler-A03</option>
+
                         </select>
                         <li>強制故障注入： </li>
-                        <button>⚠️ 觸發卡料 </button>
-                        <button>🌡️ 注入高溫</button>
+                        <button id="alarm">⚠️ 觸發卡料 </button>
+                        <button id="tempHigh">🌡️ 注入高溫</button>
                         <li>兩階段工業級安全復原：</li>
-                        Step 1: <button>🛠️ 1. 排除障礙並複位 (切換黃燈)</button>
+                        Step 1: <button id="fixed">🛠️ 1. 排除障礙並複位 (切換黃燈)</button>
                         <br>
-                        Step 2: <button>▶️ 2. 安全確認，重新啟動 (恢復綠燈)</button>
+                        Step 2: <button id="recover">▶️ 2. 安全確認，重新啟動 (恢復綠燈)</button>
                     </ol>
                 </td>
                 <td>

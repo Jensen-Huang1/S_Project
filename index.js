@@ -15,7 +15,7 @@ let modelA = "🟢 自動隨機、狀態",
 let machinesDate = [
     { id: "Handler-A01", totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: 80.0, tempMax: 100.0 },
     { id: "Handler-A02", totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: 80.0, tempMax: 100.0 },
-    { id: "Handler-A03", totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: 80.0, tpmeMax: 100.0 }
+    { id: "Handler-A03", totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: 80.0, tempMax: 100.0 }
 ]
 
 // ====================
@@ -23,6 +23,7 @@ let machinesDate = [
 // ====================
 $(function () {
     setInterval(updateTime, 1000);
+    setInterval(updateProduction, 1000);
 })
 
 // ====================
@@ -48,7 +49,7 @@ initUI();
 // ==========================================
 // 生產數據函式
 // ==========================================
-function upupdateProduction() {
+function updateProduction() {
     // 用迴圈處理每一台機台的生產亂數
     for (let i = 0; i < machinesDate.length; i++) {
         let m = machinesDate[i];
@@ -56,7 +57,9 @@ function upupdateProduction() {
         let temperatureState;
         if (m.model == modelA) {
             // A. 模擬這台機台這秒產出 1~3 顆
-            let produced = Math.floor(Math.random * 3) + 1;
+            let produced = Math.floor(Math.random() * 3) + 1;
+
+
             // B. 隨機生產良/不良品
             for (let p = 0; p < produced; p++) {
                 if (Math.random() * 100 < 98) {
@@ -65,6 +68,8 @@ function upupdateProduction() {
                     m.totalFail++;
                 }
             }
+
+
             // C. 計算良率
             let total = m.totalFail + m.totalPass;
             let yieldRate = (m.totalPass / total * 100).toFixed(1);
@@ -79,8 +84,11 @@ function upupdateProduction() {
             m.temp += (Math.random() * 6 - 3);
             if (m.temp >= m.tempMax) {
                 temperatureState = "⚠️溫度過高";
-                modelTemp();
+                modelTemp(m);
+            } else {
+                temperatureState = "±3";
             }
+
             // C. 精準定位到該機台卡片，只更新「數字」，不重新生成 HTML！
             cardContent = $(`.card[data-id="${m.id}"]`);
             cardContent.find('.machineModel').text(m.model);
@@ -93,36 +101,35 @@ function upupdateProduction() {
             cardContent.find('.temp').text(m.temp.toFixed(1));
             cardContent.find('.tempeTolerance').text(temperatureState);
 
-
-// 回家修改            
-        } else if (machinesData[i].model == modelB) {
+        } else if (m.model == modelB) {
             // 判斷溫度是否過高，並更新溫度狀態
             if (m.temp >= m.maxTemp) {
                 temperatureState = "⚠️溫度過高";
+                modelTemp(m);
             } else {
                 temperatureState = "±0";
             }
             cardContent = $(`.card[data-id="${m.id}"]`);
-            cardContent.find('.machine-model').text(`模式: ${m.model}`);
-            cardContent.find('.machine-state').text(`狀態: ${m.state}`);
-            cardContent.find('.test_number_state').text(`⏸️`);
-            cardContent.find('.yield_state').text("暫停");
-            cardContent.find('.temperature_tolerance').text(temperatureState);
-        } else if (machinesData[i].model == modelC) {
+            cardContent.find('.machineModel').text(m.model);
+            cardContent.find('.machineState').text(m.state);
+            cardContent.find('.testCountState').text(`⏸️`);
+            cardContent.find('.yieldState').text("暫停");
+            cardContent.find('.tempeTolerance').text(temperatureState);
+        } else if (m.model == modelC) {
             // 判斷溫度是否過高，並更新溫度狀態
             if (m.temp >= m.maxTemp) {
                 temperatureState = "⚠️溫度過高";
+                modelTemp(m);
             } else {
                 temperatureState = "±0";
             }
             cardContent = $(`.card[data-id="${m.id}"]`);
-            cardContent.find('.machine-model').text(`模式: ${m.model}`);
-            cardContent.find('.machine-state').text(`狀態: ${m.state}`);
-            cardContent.find('.test_number_state').text(`▲0`);
-            cardContent.find('.temperature_tolerance').text("±0");
+            cardContent.find('.machineModel').text(m.model);
+            cardContent.find('.machineState').text(m.state);
+            cardContent.find('.testCountState').text(`▲0`);
+            cardContent.find('.tempeTolerance').text("±0");
         }
     }
-
 }
 
 
@@ -141,29 +148,96 @@ function upupdateProduction() {
 // ==========================================
 // 溫度過高停機機制
 // ==========================================
-function modelTemp() {
-
-
+function modelTemp(m) {
+    m.model = modelB;
+    m.state = stateTempH;
 }
 
 
 // ==========================================
 // 區塊B下拉式清單回傳
 //=========================================
-
+let selectE1 = $('#displayMachine');
+$.each(machinesDate, function (index, machine) {
+    selectE1.append($('<option>', {
+        text: machine.id
+    }));
+});
 
 //===========================================
 // 按鈕事件
 //===========================================
 // 排除障礙並複位 (切換黃燈)
-
+$("#fixed").click(function () {
+    let d = $("#displayMachine").val();
+    $.each(machinesDate, function (index, machine) {
+        if (d == machine.id) {
+            if (machine.model == modelB) {
+                machine.model = modelC;
+                machine.state = stateIdle;
+                machine.temp = 80;
+                alert(`${d} 機台已排除狀況，待命中!`)
+            } else if (machine.model == modelA) {
+                alert(`${d} 機台正常運行中，請確認是否誤觸按鈕!`)
+            } else if (machine.model == modelC) {
+                alert(`${d} 機台待命中，安全確認後請重啟!`)
+            }
+        }
+    });
+});
 // 安全確認，重新啟動 (恢復綠燈)
+$("#recover").click(function () {
+    let d = $("#displayMachine").val();
+    $.each(machinesDate, function (index, machine) {
+        if (d == machine.id) {
+            if (machine.model == modelC) {
+                machine.model = modelA;
+                machine.state = stateRun;
+            } else if (machine.model == modelA) {
+                alert(`${d} 機台正常運行中，不需重新啟動!`);
+            } else if (machine.model == modelB) {
+                alert(`{d} 機台故障中，請先排除狀況!`);
+            }
+        }
+    });
+});
 
 // 強制停止生產 (切換紅燈)
+$("#alarm").click(function () {
+    let d = $("#displayMachine").val();
+    $.each(machinesDate, function (index, machine) {
+        if (d == machine.id) {
+            if (machine.model == modelA) {
+                machine.model = modelB;
+                machine.state = stateAlarm;
+            } else if (machine.model == modelB) {
+                alert(`${d} 機台已停機!`)
+            } else if (machine.model == modelC) {
+                alert(`${d} 機台待命中，尚未開始運轉!`)
+            }
+        }
+    })
+});
+
+
 
 
 // 提高機台溫度 
+$("#tempHigh").click(function () {
+    let d = $("#displayMachine").val();
+    $.each(machinesDate, function (index, machine) {
+        if (machine.model == modelA) {
+            if (d = machine.id) {
+                machine.temp = 98;
+            }
+        } else if (machine.model == modelB) {
+            alert(`${d} 機台已停機，無法提高機台溫度!`);
+        } else if (machine.model == modelC) {
+            alert(`${d} 機台待命中，無法提高機台溫度!`);
+        }
 
+    });
+});
 
 
 // ==========================================
