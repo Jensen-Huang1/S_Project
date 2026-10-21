@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./index.js">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <title>Jenson智慧監控與安全復原系統</title>
+    <title>Jensen智慧監控與安全復原系統</title>
 </head>
 
 <body>
@@ -22,37 +22,18 @@
         📊 區塊 A：三機台即時運作狀態 (動態串流 / 防呆機制)
     </div>
 
-    <template> <!-- 區塊A表格 -->
-        <div class="myclassA">
-            <table id="myclassA">
-                <tr>
-                    <th>機台：<span id="tool"></span></th>
-                </tr>
-                <tr>
-                    <th>模式：[<span id="model"></span>]</th>
-                </tr>
-                <tr>
-                    <th>狀態：<span id="state"></span></th>
-                </tr>
-                <tr>
-                    <th>----------------------------------------</span></th>
-                </tr>
-                <tr>
-                    <th>• 測試總數：<span id="test_number"></span>顆(<span id="test_number_state"></span>)</th>
-                </tr>
-                <tr>
-                    <th>• 合格數量：<span id="qualified_number"></span>顆</th>
-                </tr>
-                <tr>
-                    <th>• 即時良率：<span id="yield_rate"></span>%(<span id="yield_state"></span>)</th>
-                </tr>
-                <tr>
-                    <th>• 機台溫度：<span temperature></span>°C(<span id="temperature_tolerance"></span>)</th>
-                </tr>
-            </table>
+    <template id="card_template"> 
+        <div class="card">
+            <h3>機台：<span class="machineTitle"></span></h3>
+            <h4>模式：[<span class="machineModel"></span>]</h4>
+            <h4>狀態：<span class="machineState"></span></h4>
+            <p>• 測試總數：<span class="machineTestCount"></span>顆(<span id="testCountState"></span>)</p>
+            <p>• 合格數量：<span class="passCount"></span>顆</p>
+            <p>• 即時良率：<span id="yieldRate"></span>%(<span class="yieldState"></span>)</p>
+            <p>• 機台溫度：<span class="temp"></span>°C(<span class="tempeTolerance"></span>)</p>
         </div>
     </template>
-    <div id="return_table"></div>
+    <div id="container"></div>
 
     <div class="myclassB">
         <table id="myclassB">
@@ -83,7 +64,6 @@
                     <p>[10:12:05] 🔴 [強制] 手動注入「卡料警報」於 Handler-A02</p>
                     <p>[10:10:00] 🎲 [隨機] Handler-A03 測試良率降至 93.0%</p>
                     <p>[10:00:00] ℹ️ [系統] 系統啟動，完成 3 台機台連線檢查</p>
-
                 </td>
             </tr>
         </table>
