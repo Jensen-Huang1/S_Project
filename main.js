@@ -1,30 +1,56 @@
 // ====================
 // 設定全域模式與狀態常數
 // ====================
-let modelA = "🟢 自動隨機、狀態",
+let machineId01 = "Handler-A01",
+    machineId02 = "Handler-A02",
+    machineId03 = "Handler-A03",
+    modelA = "🟢 自動隨機、狀態",
     modelB = "🔴 強制鎖定、狀態",
     modelC = "🟡 安全待命、狀態",
     stateRun = "🟢 RUN (正常運作)",
     stateAlarm = "🔴 ALARM (故障)",
     stateTempH = "🔴 TEMPERHIGH (溫度過高)",
-    stateIdle = "🟡 IDLE (待機/已複位)";
+    stateIdle = "🟡 IDLE (待機/已複位)",
+    m1Temp = 80.0,
+    m2Temp = 80.0,
+    m3Temp = 80.0,
+    m1TempMax = 100.0,
+    m2TempMax = 100.0,
+    m3TempMax = 100.0;
+
 
 // ====================
 // 宣告機台資料庫
 // ====================
 let machinesDate = [
-    { id: "Handler-A01", totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: 80.0, tempMax: 100.0 },
-    { id: "Handler-A02", totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: 80.0, tempMax: 100.0 },
-    { id: "Handler-A03", totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: 80.0, tempMax: 100.0 }
+    { id: machineId01, totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: m1Temp, tempMax: m1TempMax },
+    { id: machineId02, totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: m2Temp, tempMax: m2TempMax },
+    { id: machineId03, totalPass: 0, totalFail: 0, model: modelA, state: stateRun, temp: m3Temp, tempMax: m3TempMax }
 ]
 
 // ====================
 // 每秒更新狀態函式
 // ====================
-$(function () {
-    setInterval(updateTime, 1000);
-    setInterval(updateProduction, 1000);
-})
+let actionJ = "N";
+$("#runFunction").click(function () {
+    actionJ = "Y";
+    newMessage(`ℹ️ [系統] 系統啟動，完成機台連線檢查，開始正常運作`);
+    $(function () {
+        let runTime = setInterval(updateTime, 1000);
+        let runFunction = setInterval(updateProduction, 1000);
+        let runModel = setInterval(modelRun, 1000);
+        $("#stopRun").click(function () {
+            actionJ = "N";
+            newMessage(`ℹ️ 🔴[系統] 系統強制停止，全機台停止運作`);
+            clearInterval(runTime);
+            clearInterval(runFunction);
+            clearInterval(runModel);
+        });
+    });
+});
+
+
+
 
 // ====================
 // 抓取最新時間函式
@@ -40,7 +66,7 @@ function initUI() {
     for (let i = 0; i < machinesDate.length; i++) {
         let cloneId = $($('#card_template')[0].content).clone();
         cloneId.find('.card').attr('data-id', machinesDate[i].id);
-        cloneId.find('.machineTitle').text(`機台  ${machinesDate[i].id}`);
+        cloneId.find('.machineTitle').text(machinesDate[i].id);
         $('#container').append(cloneId);
     }
 }
@@ -76,7 +102,7 @@ function updateProduction() {
             let yieldState;
             if (yieldRate < 90) {
                 yieldState = "⚠️低於90";
-                newmessage(`⚠️ [警告]  ${yieldState}良率低於 90%，請注意！`);
+                newMessage(`🎲 [隨機] ${m.id}良率低於 90%，請注意！`);
             } else {
                 yieldState = "正常";
             }
@@ -102,8 +128,8 @@ function updateProduction() {
             cardContent.find('.tempeTolerance').text(temperatureState);
 
         } else if (m.model == modelB) {
-            // 判斷溫度是否過高，並更新溫度狀態
-            if (m.temp >= m.maxTemp) {
+            // 判斷溫度是否過高，並更新溫度狀態            
+            if (m.temp >= m.tempMax) {
                 temperatureState = "⚠️溫度過高";
                 modelTemp(m);
             } else {
@@ -117,7 +143,7 @@ function updateProduction() {
             cardContent.find('.tempeTolerance').text(temperatureState);
         } else if (m.model == modelC) {
             // 判斷溫度是否過高，並更新溫度狀態
-            if (m.temp >= m.maxTemp) {
+            if (m.temp >= m.tempMax) {
                 temperatureState = "⚠️溫度過高";
                 modelTemp(m);
             } else {
@@ -142,15 +168,29 @@ function updateProduction() {
 // ==========================================
 // 每秒突發故障狀態隨機產生 (2% 機率)
 // ==========================================
-
+function modelRun() {
+    for (let i = 0; i < machinesDate.length; i++) {
+        let m = machinesDate[i];
+        if (m.model == modelA) {
+            if (Math.random() * 100 > 98) {
+                m.model = modelB;
+                m.state = stateAlarm;
+                newMessage(`🔴 [隨機] ${m.id} 卡料故障，已停機！`)
+            }
+        }
+    }
+}
 
 
 // ==========================================
 // 溫度過高停機機制
 // ==========================================
 function modelTemp(m) {
-    m.model = modelB;
-    m.state = stateTempH;
+    if (m.model == modelA) {
+        m.model = modelB;
+        m.state = stateTempH;
+        newMessage(`⚠️ [溫度警示]  ${m.id} 溫度已超過最大限制，已停機！`)
+    }
 }
 
 
@@ -169,54 +209,63 @@ $.each(machinesDate, function (index, machine) {
 //===========================================
 // 排除障礙並複位 (切換黃燈)
 $("#fixed").click(function () {
-    let d = $("#displayMachine").val();
-    $.each(machinesDate, function (index, machine) {
-        if (d == machine.id) {
-            if (machine.model == modelB) {
-                machine.model = modelC;
-                machine.state = stateIdle;
-                machine.temp = 80;
-                alert(`${d} 機台已排除狀況，待命中!`)
-            } else if (machine.model == modelA) {
-                alert(`${d} 機台正常運行中，請確認是否誤觸按鈕!`)
-            } else if (machine.model == modelC) {
-                alert(`${d} 機台待命中，安全確認後請重啟!`)
+    if (actionJ == "Y") {
+        let d = $("#displayMachine").val();
+        $.each(machinesDate, function (index, machine) {
+            if (d == machine.id) {
+                if (machine.model == modelB) {
+                    machine.model = modelC;
+                    machine.state = stateIdle;
+                    machine.temp = 80;
+                    newMessage(`🛠️ [手動]  ${machine.id} 已排除障礙並複位，請重新啟動！`)
+                    alert(`${d} 機台已排除狀況，待命中!`)
+                } else if (machine.model == modelA) {
+                    alert(`${d} 機台正常運行中，請確認是否誤觸按鈕!`)
+                } else if (machine.model == modelC) {
+                    alert(`${d} 機台待命中，安全確認後請重啟!`)
+                }
             }
-        }
-    });
+        });
+    }
 });
 // 安全確認，重新啟動 (恢復綠燈)
 $("#recover").click(function () {
-    let d = $("#displayMachine").val();
-    $.each(machinesDate, function (index, machine) {
-        if (d == machine.id) {
-            if (machine.model == modelC) {
-                machine.model = modelA;
-                machine.state = stateRun;
-            } else if (machine.model == modelA) {
-                alert(`${d} 機台正常運行中，不需重新啟動!`);
-            } else if (machine.model == modelB) {
-                alert(`{d} 機台故障中，請先排除狀況!`);
+    if (actionJ == "Y") {
+        let d = $("#displayMachine").val();
+        $.each(machinesDate, function (index, machine) {
+            if (d == machine.id) {
+                if (machine.model == modelC) {
+                    machine.model = modelA;
+                    machine.state = stateRun;
+                    newMessage(`✅ [手動]  ${machine.id} 已重新啟動，恢復正常運作！`)
+                } else if (machine.model == modelA) {
+                    alert(`${d} 機台正常運行中，不需重新啟動!`);
+                } else if (machine.model == modelB) {
+                    alert(`${d} 機台故障中，請先排除狀況!`);
+                }
             }
-        }
-    });
+        });
+    }
 });
 
 // 強制停止生產 (切換紅燈)
 $("#alarm").click(function () {
-    let d = $("#displayMachine").val();
-    $.each(machinesDate, function (index, machine) {
-        if (d == machine.id) {
-            if (machine.model == modelA) {
-                machine.model = modelB;
-                machine.state = stateAlarm;
-            } else if (machine.model == modelB) {
-                alert(`${d} 機台已停機!`)
-            } else if (machine.model == modelC) {
-                alert(`${d} 機台待命中，尚未開始運轉!`)
+    if (actionJ == "Y") {
+        let d = $("#displayMachine").val();
+        $.each(machinesDate, function (index, machine) {
+            if (d == machine.id) {
+                if (machine.model == modelA) {
+                    machine.model = modelB;
+                    machine.state = stateAlarm;
+                    newMessage(`🔴 [強制] 手動注入「卡料警報」於 ${machine.id}`)
+                } else if (machine.model == modelB) {
+                    alert(`${d} 機台已停機!`)
+                } else if (machine.model == modelC) {
+                    alert(`${d} 機台待命中，尚未開始運轉!`)
+                }
             }
-        }
-    })
+        })
+    }
 });
 
 
@@ -224,27 +273,38 @@ $("#alarm").click(function () {
 
 // 提高機台溫度 
 $("#tempHigh").click(function () {
-    let d = $("#displayMachine").val();
-    $.each(machinesDate, function (index, machine) {
-        if (machine.model == modelA) {
-            if (d = machine.id) {
-                machine.temp = 98;
+    if (actionJ == "Y") {
+        let d = $("#displayMachine").val();
+        $.each(machinesDate, function (index, machine) {
+            if (d == machine.id) {
+                if (machine.model == modelA) {
+                    machine.temp = 98;
+                    newMessage(`🛠️[手動]  ${machine.id} 注入溫度至98℃！`)
+                } else if (machine.model == modelB) {
+                    alert(`${d} 機台已停機，無法提高機台溫度!`);
+                } else if (machine.model == modelC) {
+                    alert(`${d} 機台待命中，無法提高機台溫度!`);
+                }
             }
-        } else if (machine.model == modelB) {
-            alert(`${d} 機台已停機，無法提高機台溫度!`);
-        } else if (machine.model == modelC) {
-            alert(`${d} 機台待命中，無法提高機台溫度!`);
-        }
-
-    });
+        });
+    }
 });
 
 
 // ==========================================
 // 區塊C：最新消息系統通知
 // ==========================================
-function newmessage() {
-
+let messageLog = [];
+function newMessage(message) {
+    let newTime = new Date().toLocaleString();
+    let newMessage = `[${newTime}] ${message}`;
+    messageLog.unshift(newMessage);
+    let messageList = "";
+    if (messageLog.length > 50) messageLog.pop();
+    for (let i = 0; i < messageLog.length; i++) {
+        messageList += `<div> ${messageLog[i]} </div>`;
+    }
+    $("#newMessageContainer").html(messageList);
 }
 
 
@@ -254,59 +314,7 @@ function newmessage() {
 
 
 
-// let machine_all = ["Handler-A01", "Handler-A02", "Handler-A03"];
-// let model_all = ["🟢 自動隨機", "🔴 強制鎖定", "🟡 安全待命"]
-// let state_all = ["🟢 RUN (正常運作)", "🔴 ALARM (卡料故障)", "🟡 IDLE (待機/已複位) "]
 
-// let table_all, return_table;
-// let machine_name, model_name, state_name;
-
-
-
-
-// function machineInfo() {
-//     for (let i = 0; i < machineDate.length; i++) {
-//         let clone = $($('#card-template')[0].content).clone();
-//         clone.find('.card').attr('data-id', machineDate[i].id);
-//         clone.find('.machine-title').text("機台" + machineDate[i].id);
-//         $(container).append(clone);
-//     }
-// }
-
-// table_all = document.querySelector("template");
-// return_table = document.getElementById("return_table");
-
-// for (let i = 0; i < machine_all.length; i++) {
-//     let clone = table_all.content.cloneNode(true);
-
-//     let toolSpan = clone.querySelector("#tool");
-//     let modelSpan = clone.querySelector("#model");
-//     let stateSpan = clone.querySelector("#state");
-//     toolSpan.textContent = machine_all[i];
-//     modelSpan.textContent = model_all[i];
-//     stateSpan.textContent = state_all[i];
-//     return_table.appendChild(clone);
-// }
-
-
-
-
-// 機台生產運作
-// function machineOperate() {
-//     let produceCount = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
-//     for (let i = 0; i < produceCount; i++) {
-//         let randomRate = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
-//         if (randomRate < 98) {
-//             totalPassNo1++;
-//         } else {
-//             totalFailNo1++;
-//         }
-//     }
-// $('#test_number').text(totalNo1All);
-// $('#qualified_number').text(totalPassNo1);
-// $('#yield_rate').text(totalRate);
-// }
-// setInterval(machineNo1,1000);
 
 
 

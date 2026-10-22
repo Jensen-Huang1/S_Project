@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Handler HMI</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <h1><span>🖥️ Handler HMI 系統</span></h1>
+        | 時間: <span id="nowTime">--</span>
+    </header>
+
+    <h4>展示控台與兩階段安全復原流程</h4>
+    <section>
+        <button id="runFunction" style="background:#10b981;">啟動</button>
+        <button id="stopRun" style="background:#ef4444; color:#fff;">停止</button>
+        <p>
+            <span style="color: rgb(255, 80, 232);">選擇機台： </span><select id="displayMachine"></select>
+        </p>
+        <p>
+            <button id="fixed">障礙排除</button>
+            <button id="recover">重新啟動</button>
+        </p>
+        <p>
+            <button id="alarm">模擬卡料</button>
+            <button id="tempHigh">模擬注入高溫</button>
+        </p>
+    </section>
+
+    <!-- 機台卡片容器 -->
+    <h4>機台即時運作狀態 (動態串流 / 防呆機制)</h4>
+    <main id="container" class="hmi-grid-3col"></main>
+
+    <!-- 訊息日誌 -->
+    <h4>即時事件與警報紀錄</h4>
+    <div id="newMessageContainer" class="terminal-window"></div>
+
+    <!-- 卡片模板 (極簡化，只保留 JS 對應的 class) -->
+    <template id="card_template">
+        <div class="card" data-id="">
+            <div>
+                <strong class="machineTitle" style="color:#00e5ff;">ID</strong>
+                <span class="machineState highlight">RUN</span>
+            </div>
+            <div>
+                <span>模式: <span class="machineModel">自動</span></span>
+            </div>
+            <div>
+                <span>總數: <span class="machineTestCount">0</span> (<span class="testCountState">▲0</span>)</span>
+                <span>良品: <span class="passCount highlight">0</span></span>
+            </div>
+            <div>
+                <span>良率: <span class="yieldRate highlight">100</span>% (<span class="yieldState">正常</span>)</span>
+            </div>
+            <div>
+                <span>溫度: <span class="temp highlight">80</span>°C</span>
+                <span>溫度狀態: <span class="tempeTolerance">±3</span></span>
+            </div>
+        </div>
+    </template>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
